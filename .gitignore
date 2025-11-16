@@ -1,0 +1,33 @@
+# Node modules
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Vite cache
+.vite/
+dist/
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*.local
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+
+# MacOS
+.DS_Store
+
+# Test coverage
+coverage/
+
+# Misc
+*.bak
