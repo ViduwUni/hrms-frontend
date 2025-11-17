@@ -88,9 +88,8 @@ export default function OvertimeEntry() {
       const dayEntries = res.data.filter((e) => {
         const entryDate = new Date(e.date);
         return (
-          entryDate.getUTCFullYear() === selectedDay.getUTCFullYear() &&
-          entryDate.getUTCMonth() === selectedDay.getUTCMonth() &&
-          entryDate.getUTCDate() === selectedDay.getUTCDate()
+          entryDate.toLocaleDateString("en-CA") ===
+          selectedDay.toLocaleDateString("en-CA")
         );
       });
       setExistingEntries(dayEntries);
@@ -430,7 +429,9 @@ export default function OvertimeEntry() {
       }
 
       toast.success(`Entry ${newStatus}`);
-      fetchExisting();
+
+      await fetchExisting();
+      await fetchWeeklyEntries();
     } catch (err) {
       console.error(err);
       toast.error(err.message);
@@ -497,11 +498,14 @@ export default function OvertimeEntry() {
               // Count of entries for the day
               const dayEntriesCount = weeklyEntries.filter((e) => {
                 const entryDate = new Date(e.date);
-                return (
-                  entryDate.getUTCFullYear() === d.getUTCFullYear() &&
-                  entryDate.getUTCMonth() === d.getUTCMonth() &&
-                  entryDate.getUTCDate() === d.getUTCDate()
-                );
+
+                const sameDay =
+                  entryDate.toLocaleDateString("en-CA") ===
+                  d.toLocaleDateString("en-CA");
+
+                const isCompleted = ["Approved", "Rejected"].includes(e.status);
+
+                return sameDay && isCompleted;
               }).length;
 
               const empCount = employees.length;
