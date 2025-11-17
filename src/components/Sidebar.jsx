@@ -15,6 +15,49 @@ import {
   AlertCircle,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import Notifications from "./Notifications";
+
+function SessionTimer({ onExpire }) {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const expires = localStorage.getItem("sessionExpires");
+    return expires ? new Date(expires) - new Date() : 0;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const expires = localStorage.getItem("sessionExpires");
+      if (!expires) return;
+
+      const diff = new Date(expires) - new Date();
+      setTimeLeft(diff);
+
+      if (diff <= 0) {
+        clearInterval(interval);
+        onExpire();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [onExpire]);
+
+  if (timeLeft <= 0)
+    return <span className="text-red-600">Session expired</span>;
+
+  const hours = Math.floor(timeLeft / 1000 / 60 / 60);
+  const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
+  const seconds = Math.floor((timeLeft / 1000) % 60);
+  const totalMinutesLeft = timeLeft / 1000 / 60;
+
+  let color = "text-green-600";
+  if (totalMinutesLeft <= 60) color = "text-orange-500";
+  if (totalMinutesLeft <= 30) color = "text-red-600";
+
+  return (
+    <span className={`text-xs font-semibold ${color}`}>
+      Session expires in {hours}h {minutes}m {seconds}s
+    </span>
+  );
+}
 
 export default function Sidebar() {
   const { user, logout } = useContext(AuthContext);
@@ -22,9 +65,15 @@ export default function Sidebar() {
   const [openMenus, setOpenMenus] = useState({});
   const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
+  const handleSessionExpire = () => {
+    alert("Session expired! Logging out...");
+    localStorage.removeItem("token");
+    localStorage.removeItem("sessionExpires");
+    window.location.href = "/login";
+  };
 
   useEffect(() => {
-    if (!user) return; // only run when user is loaded
+    if (!user) return;
 
     const fetchProfile = async () => {
       try {
@@ -253,7 +302,12 @@ export default function Sidebar() {
   return (
     <div className="w-60 h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white fixed top-0 left-0 flex flex-col shadow-xl border-r border-gray-700">
       {/* Header */}
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-6 border-b border-gray-700 relative">
+        {profile?.canApprove && (
+          <div className="absolute top-6 right-6">
+            <Notifications />
+          </div>
+        )}
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
           OTFlow
         </h1>
@@ -265,9 +319,12 @@ export default function Sidebar() {
               isAdmin ? "bg-green-500" : "bg-red-500"
             }`}
           />
-          <span className="text-xs text-gray-500">
-            {isAdmin ? "Admin Mode" : "User Mode"}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-xs text-gray-500">
+              {isAdmin ? "Admin Mode" : "User Mode"}
+            </span>
+            <SessionTimer onExpire={handleSessionExpire} />
+          </div>
         </div>
       </div>
 
@@ -302,16 +359,18 @@ export default function Sidebar() {
 
       {/* Footer Actions */}
       <div className="p-4 border-t border-gray-700 space-y-2">
-        <button
-          onClick={() => navigate("/settings")}
-          className="flex items-center justify-center gap-3 w-full p-3 rounded-xl bg-gray-750 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 group border border-gray-600 hover:border-gray-500"
-        >
-          <Settings
-            size={18}
-            className="text-gray-400 group-hover:text-white"
-          />
-          <span className="font-medium">Settings</span>
-        </button>
+        {profile?.isAdmin && (
+          <button
+            onClick={() => navigate("/settings")}
+            className="flex items-center justify-center gap-3 w-full p-3 rounded-xl bg-gray-750 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 group border border-gray-600 hover:border-gray-500"
+          >
+            <Settings
+              size={18}
+              className="text-gray-400 group-hover:text-white"
+            />
+            <span className="font-medium">Settings</span>
+          </button>
+        )}
 
         <button
           onClick={logout}

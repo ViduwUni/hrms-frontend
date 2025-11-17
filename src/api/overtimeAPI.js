@@ -17,10 +17,15 @@ const withUser = (data = {}) => {
 
 export const getOvertimes = () => API.get("/overtime");
 export const addOvertime = (data) => API.post("/overtime", withUser(data));
-export const updateOvertime = (id, data) => API.put(`/overtime/${id}`, withUser(data));
-export const approveOvertime = (id, details = {}) => API.put(`/overtime/${id}/approve`, withUser(details));
-export const rejectOvertime = (id, details = {}) => API.put(`/overtime/${id}/reject`, withUser(details));
-export const deleteOvertime = (id) => API.delete(`/overtime/${id}`, { data: withUser() });
+export const updateOvertime = (id, data) =>
+  API.put(`/overtime/${id}`, withUser(data));
+export const approveOvertime = (id, details = {}) =>
+  API.put(`/overtime/${id}/approve`, withUser(details));
+export const rejectOvertime = (id, details = {}) =>
+  API.put(`/overtime/${id}/reject`, withUser(details));
+export const getPendingOvertime = () => API.get("/overtime/pending");
+export const deleteOvertime = (id) =>
+  API.delete(`/overtime/${id}`, { data: withUser() });
 
 export const overtimeExport = (startDate, endDate) =>
   API.get(`/overtime/export?startDate=${startDate}&endDate=${endDate}`, {

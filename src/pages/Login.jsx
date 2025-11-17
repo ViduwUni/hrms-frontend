@@ -59,6 +59,7 @@ export default function Login() {
       const res = await loginUser(form);
       toast.success("Logged in successfully.");
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("sessionExpires", res.data.sessionExpires);
       setUser(res.data);
       navigate("/dashboard");
     } catch (err) {
