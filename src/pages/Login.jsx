@@ -19,8 +19,8 @@ export default function Login() {
 
   const checkBackendStatus = async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
-      const res = await axios.get(baseUrl + "/");
+      const baseUrl = import.meta.env.VITE_API_BASE_URL_HEALTH;
+      const res = await axios.get(baseUrl);
 
       const isOnline =
         res.status === 200 && res.data.includes("API is running");

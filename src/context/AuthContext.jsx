@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import { getProfile } from "../api/authAPI";
+import { getProfile, logoutUser } from "../api/authAPI";
+import toast from "react-hot-toast";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
@@ -23,9 +24,17 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } catch (err) {
+      console.log("Logout error:", err);
+      toast.error(`Logout error: ${err.message}`);
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+      toast.success("User logged out successfully.");
+    }
   };
 
   return (
