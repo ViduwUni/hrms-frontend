@@ -79,7 +79,7 @@ export default function Notifications() {
   if (!profile?.canApprove) return null;
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative z-50" ref={ref}>
       {/* Bell Button */}
       <motion.button
         whileTap={{ scale: 0.85 }}

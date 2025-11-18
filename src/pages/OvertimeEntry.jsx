@@ -211,57 +211,57 @@ export default function OvertimeEntry() {
     if (!intime || !outtime || !row.shift || !selectedDay) return row;
 
     // Handle overnight shifts
-    if (outtime < intime || outtime <= 12) {
+    if (outtime < intime) {
       outtime += 24;
     }
 
-    const dayType = getDayType(selectedDay); // weekday/saturday/sunday
-    let normal = 0,
-      double = 0,
-      triple = 0,
-      night = "No";
+    const dayType = getDayType(selectedDay);
 
-    // --- Check if the selected day is a triple OT date ---
     const isTripleOT = tripleOTDates.some((d) => {
       const tripleDate = new Date(d);
-      return (
-        tripleDate.getFullYear() === selectedDay.getFullYear() &&
-        tripleDate.getMonth() === selectedDay.getMonth() &&
-        tripleDate.getDate() === selectedDay.getDate()
-      );
+      return tripleDate.toDateString() === selectedDay.toDateString();
     });
 
-    // --- Calculate OT normally first ---
+    let normal = 0,
+      double = 0,
+      triple = 0;
+
+    // OT start config for weekdays
+    const shiftOTStart = {
+      "6:30am": 15.5,
+      "8:30am": 17.5,
+    };
+
+    const saturdayShiftHours = {
+      "6:30am": 5,
+      "8:30am": 4,
+    };
+
+    // NORMAL OT calculation
     if (dayType === "weekday") {
-      const otStart = row.shift === "6:30am" ? 15.5 : 17.5;
-      let overtime = Math.max(0, outtime - otStart);
-      normal = floorToQuarter(overtime);
-    } else if (dayType === "saturday") {
-      let shiftDuration = row.shift === "6:30am" ? 5 : 5;
-      const shiftEnd = intime + shiftDuration;
-      let overtime = Math.max(0, outtime - shiftEnd);
-      normal = floorToQuarter(overtime);
-    } else if (dayType === "sunday") {
-      let overtime = Math.max(0, outtime - intime);
-      double = floorToQuarter(overtime);
+      const otStart = shiftOTStart[row.shift] ?? 17.5;
+      normal = floorToQuarter(Math.max(0, outtime - otStart));
     }
 
-    // --- OVERRIDE FOR TRIPLE OT ---
+    if (dayType === "saturday") {
+      const shiftDuration = saturdayShiftHours[row.shift] ?? 5;
+      const shiftEnd = intime + shiftDuration;
+      normal = floorToQuarter(Math.max(0, outtime - shiftEnd));
+    }
+
+    if (dayType === "sunday") {
+      double = floorToQuarter(Math.max(0, outtime - intime));
+    }
+
+    // TRIPLE OT override
     if (isTripleOT) {
-      // Any OT (normal or double) becomes triple
-      triple = normal + double;
-      if (triple === 0) {
-        // If no OT calculated yet (e.g., Sunday shift), take total hours
-        triple = floorToQuarter(outtime - intime);
-      }
+      triple = floorToQuarter(outtime - intime);
       normal = 0;
       double = 0;
     }
 
-    // --- NIGHT OT (calculate after everything) ---
-    if (outtime > 21 || (outtime >= 24 && outtime <= 30)) {
-      night = "Yes";
-    }
+    // Night OT
+    const night = outtime > 21 ? "Yes" : "No";
 
     return {
       ...row,
