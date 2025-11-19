@@ -10,7 +10,11 @@ import {
   FaUserClock,
 } from "react-icons/fa";
 import { PiExportBold } from "react-icons/pi";
-import { MdDisabledByDefault, MdEditDocument } from "react-icons/md";
+import {
+  MdDisabledByDefault,
+  MdEditDocument,
+  MdApproval,
+} from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -57,6 +61,16 @@ export default function Dashboard() {
       hoverBg: "hover:bg-emerald-50",
       path: "/overtimeentry",
       adminOnly: true,
+    },
+    {
+      title: "Approve Entries",
+      icon: <MdApproval className="text-orange-600" size={20} />,
+      bgColor: "bg-orange-100",
+      hoverBgColor: "group-hover:bg-orange-200",
+      borderHover: "hover:border-orange-300",
+      hoverBg: "hover:bg-orange-50",
+      path: "/overtimeentry",
+      adminOnly: false,
     },
     {
       title: "Overtime Logs",
