@@ -332,14 +332,11 @@ export default function Sidebar() {
       <div className="p-4 border-b border-gray-700 bg-gray-800/50">
         <div className="flex items-center gap-3">
           <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              isAdmin
-                ? "bg-gradient-to-br from-purple-500 to-purple-600"
-                : "bg-gradient-to-br from-blue-500 to-blue-600"
-            }`}
+            className={`w-10 h-10 rounded-full flex items-center justify-center border border-white p-1`}
           >
             {/* <FaIdBadge className="text-white text-sm" /> */}
-            <img src="https://avatar.iran.liara.run/public/boy" />
+            {/* <img src="https://avatar.iran.liara.run/public/boy" /> */}
+            <img src="/logo.png" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">

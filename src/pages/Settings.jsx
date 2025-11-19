@@ -39,7 +39,6 @@ export default function Settings() {
     }));
   };
 
-  // --- Load Overtime Reasons ---
   const loadReasons = async () => {
     setLoadingReasons(true);
     try {
@@ -104,7 +103,9 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    loadOTSettings();
+    if (!tempStop) {
+      loadOTSettings();
+    }
   }, []);
 
   // --- OT Save Handler ---

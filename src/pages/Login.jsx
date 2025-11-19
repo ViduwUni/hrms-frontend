@@ -84,9 +84,6 @@ export default function Login() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FaSignInAlt className="text-white text-xl" />
-            </div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">OTFlow</h1>
             <p className="text-gray-600">Sign in to your account</p>
           </div>
