@@ -31,6 +31,7 @@ export default function OvertimeEntry() {
   const [editableRows, setEditableRows] = useState([]);
   const [tripleOTDates, setTripleOTDates] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [approvingRowIndex, setApprovingRowIndex] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -119,9 +120,13 @@ export default function OvertimeEntry() {
 
   const handleEditableRowChange = (index, field, value) => {
     const updated = [...editableRows];
+
+    if (field === "approvedot") {
+      value = parseFloat(value) || 0;
+    }
+
     updated[index][field] = value;
 
-    // Recalculate OT if needed
     if (["shift", "intime", "outtime"].includes(field)) {
       updated[index] = calculateOT(updated[index]);
     }
@@ -136,7 +141,11 @@ export default function OvertimeEntry() {
 
     try {
       setLoading(true);
-      await updateOvertime(row._id, { ...row, status: row.status });
+      await updateOvertime(row._id, {
+        ...row,
+        approvedot: row.approvedot ?? 0,
+        status: row.status,
+      });
       toast.success("Overtime updated successfully!");
 
       // refresh table
@@ -411,7 +420,10 @@ export default function OvertimeEntry() {
 
       if (newStatus === "Approved") {
         await approveOvertime(id, {
-          approvedBy: profile?.username,
+          performedBy: profile?.username,
+          approvedot: editableRows[approvingRowIndex]?.approvedot,
+          reason:
+            editableRows[approvingRowIndex]?.reason || overtimeEntry.reason,
           entryId: id,
           action: "Status changed to Approved",
           details: { overtime: overtimeEntry },
@@ -790,10 +802,10 @@ export default function OvertimeEntry() {
             <InfoLoader text={"Loading entries."} />
           ) : (
             <div className="p-6 overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <Th>Select</Th>
+              <table className="w-full border-separate border-spacing-y-2">
+                <thead>
+                  <tr className="bg-gray-100 text-gray-700 text-sm">
+                    <Th className="rounded-l-lg">Select</Th>
                     <Th>Employee</Th>
                     <Th>Shift</Th>
                     <Th>In Time</Th>
@@ -803,26 +815,43 @@ export default function OvertimeEntry() {
                     <Th>Double OT</Th>
                     <Th>Triple OT</Th>
                     <Th>Night</Th>
+                    <Th>Approved OT</Th>
                     <Th>Status</Th>
-                    {profile?.canApprove && <Th>Actions</Th>}
+                    {profile?.canApprove && (
+                      <Th className="rounded-r-lg">Actions</Th>
+                    )}
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {editableRows.map((row, i) => {
                     const isEditing = editingRowIndex === i;
+                    const isApproving = approvingRowIndex === i;
+                    const isSelected = selectedRowIndex === i;
+
                     return (
-                      <tr key={i} className="hover:bg-gray-50/50">
-                        <Td>
+                      <tr
+                        key={i}
+                        className={`transition-all duration-150 bg-white shadow-sm hover:shadow-md ${
+                          isSelected ? "ring-2 ring-blue-300" : ""
+                        }`}
+                      >
+                        {/* SELECT ROW */}
+                        <Td className="text-center">
                           <input
                             type="radio"
                             name="editRow"
-                            checked={selectedRowIndex === i}
-                            onChange={() => setSelectedRowIndex(i)}
+                            checked={isSelected}
+                            onChange={() => {
+                              setSelectedRowIndex(i);
+                              setApprovingRowIndex(null);
+                              setEditingRowIndex(null);
+                            }}
+                            className="w-4 h-4 accent-blue-600"
                           />
                         </Td>
 
-                        {/* Editable fields */}
+                        {/* EMPLOYEE */}
                         <Td>
                           {isEditing ? (
                             <input
@@ -835,13 +864,16 @@ export default function OvertimeEntry() {
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-300 rounded px-2 py-1"
+                              className="modern-input"
                             />
                           ) : (
-                            row.name
+                            <span className="font-medium text-gray-800">
+                              {row.name}
+                            </span>
                           )}
                         </Td>
 
+                        {/* SHIFT */}
                         <Td>
                           {isEditing ? (
                             <select
@@ -853,7 +885,7 @@ export default function OvertimeEntry() {
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-300 rounded px-2 py-1"
+                              className="modern-input"
                             >
                               <option value="6:30am">6:30am</option>
                               <option value="8:30am">8:30am</option>
@@ -863,6 +895,7 @@ export default function OvertimeEntry() {
                           )}
                         </Td>
 
+                        {/* IN TIME */}
                         <Td>
                           {isEditing ? (
                             <input
@@ -875,13 +908,14 @@ export default function OvertimeEntry() {
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-300 rounded px-2 py-1"
+                              className="modern-input"
                             />
                           ) : (
                             row.intime
                           )}
                         </Td>
 
+                        {/* OUT TIME */}
                         <Td>
                           {isEditing ? (
                             <input
@@ -894,17 +928,17 @@ export default function OvertimeEntry() {
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-300 rounded px-2 py-1"
+                              className="modern-input"
                             />
                           ) : (
                             row.outtime
                           )}
                         </Td>
 
+                        {/* REASON */}
                         <Td>
-                          {isEditing ? (
-                            <input
-                              type="text"
+                          {isEditing || isApproving ? (
+                            <OvertimeReasonDropdown
                               value={row.reason}
                               onChange={(e) =>
                                 handleEditableRowChange(
@@ -913,18 +947,40 @@ export default function OvertimeEntry() {
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-300 rounded px-2 py-1"
+                              className="modern-input"
                             />
                           ) : (
                             row.reason
                           )}
                         </Td>
 
+                        {/* OT VALUES */}
                         <Td className="text-center">{row.normalot}</Td>
                         <Td className="text-center">{row.doubleot}</Td>
                         <Td className="text-center">{row.tripleot}</Td>
                         <Td className="text-center">{row.night}</Td>
-                        {/* Status Display */}
+
+                        {/* APPROVED OT */}
+                        <Td>
+                          {isEditing || isApproving ? (
+                            <input
+                              type="number"
+                              value={row.approvedot || ""}
+                              onChange={(e) =>
+                                handleEditableRowChange(
+                                  i,
+                                  "approvedot",
+                                  e.target.value
+                                )
+                              }
+                              className="modern-input border-green-500"
+                            />
+                          ) : (
+                            row.approvedot || 0
+                          )}
+                        </Td>
+
+                        {/* STATUS */}
                         <Td className="text-center">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -939,41 +995,49 @@ export default function OvertimeEntry() {
                           </span>
                         </Td>
 
-                        {/* Approve / Reject Buttons */}
+                        {/* ACTION BUTTONS */}
                         {profile?.canApprove && (
-                          <Td className="text-center flex gap-2">
-                            {profile?.canApprove &&
-                              row.status !== "Approved" && (
+                          <Td className="text-center">
+                            <div className="flex flex-col gap-2 justify-center">
+                              {/* APPROVE BUTTON */}
+                              {row.status !== "Approved" && (
                                 <button
-                                  onClick={() =>
-                                    handleStatusChange(row._id, "Approved")
-                                  }
-                                  className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm"
+                                  onClick={() => {
+                                    if (isApproving) {
+                                      handleStatusChange(row._id, "Approved");
+                                      setApprovingRowIndex(null);
+                                      setEditingRowIndex(null);
+                                    } else {
+                                      setApprovingRowIndex(i);
+                                    }
+                                  }}
+                                  className={`px-3 py-1 rounded-lg text-white text-sm ${
+                                    isApproving
+                                      ? "bg-green-700"
+                                      : "bg-green-500 hover:bg-green-600"
+                                  }`}
                                 >
-                                  Approve
+                                  {isApproving ? "Confirm" : "Approve"}
                                 </button>
                               )}
 
-                            {profile?.canApprove &&
-                              row.status !== "Rejected" && (
+                              {/* REJECT BUTTON */}
+                              {row.status !== "Rejected" && (
                                 <button
                                   onClick={() =>
                                     handleStatusChange(row._id, "Rejected")
                                   }
-                                  disabled={
-                                    !profile.canApprove ||
-                                    row.status === "Approved"
-                                  }
-                                  className={`px-3 py-1 rounded-md text-sm text-white
-                                    ${
-                                      row.status === "Approved"
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-red-500 hover:bg-red-600"
-                                    }`}
+                                  disabled={row.status === "Approved"}
+                                  className={`
+    px-3 py-1 rounded-lg text-sm text-white
+    bg-red-500 hover:bg-red-600
+    disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400
+  `}
                                 >
                                   Reject
                                 </button>
                               )}
+                            </div>
                           </Td>
                         )}
                       </tr>
