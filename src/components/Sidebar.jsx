@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaUsers, FaTachometerAlt, FaIdBadge } from "react-icons/fa";
 import { MdAccessTimeFilled } from "react-icons/md";
 import { AiOutlineAudit } from "react-icons/ai";
+import { LuLogs } from "react-icons/lu";
 import { getProfile } from "../api/authAPI";
 import {
   ChevronDown,
@@ -140,7 +141,7 @@ export default function Sidebar() {
     {
       name: "Auditing",
       icon: <AiOutlineAudit className="text-lg" />,
-      adminOnly: false,
+      adminOnly: true,
       children: [
         {
           name: "OT Record Operations",
@@ -153,6 +154,12 @@ export default function Sidebar() {
           adminOnly: true,
         },
       ],
+    },
+    {
+      name: "Utils",
+      path: "/logs",
+      icon: <LuLogs className="text-lg" />,
+      adminOnly: true,
     },
   ];
 

@@ -23,6 +23,7 @@ import OvertimeExport from "./pages/OvertimeExport";
 import OTConfiguration from "./pages/OTConfiguration";
 import OvertimeExportAudit from "./pages/OvertimeExportAudit";
 import OvertimeAudit from "./pages/OvertimeAudit";
+import LogsUploader from "./components/LogsUploader";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -92,6 +93,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <OvertimeExport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/logs"
+            element={
+              <ProtectedRoute>
+                <LogsUploader />
               </ProtectedRoute>
             }
           />

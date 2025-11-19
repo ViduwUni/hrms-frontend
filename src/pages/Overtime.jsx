@@ -176,6 +176,7 @@ export default function Overtime() {
                       <Th>Double OT</Th>
                       <Th>Triple OT</Th>
                       <Th>Night</Th>
+                      <Th>Approved OT</Th>
                       <Th>Status</Th>
                     </tr>
                   </thead>
@@ -195,6 +196,7 @@ export default function Overtime() {
                         <Td className="text-center">
                           {entry.night?.toLowerCase() === "yes" ? "Yes" : "No"}
                         </Td>
+                        <Td className="text-center">{entry.approvedot || 0}</Td>
                         <Td className="text-center">
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded ${

@@ -53,7 +53,7 @@ export default function Dashboard() {
       adminOnly: false,
     },
     {
-      title: "Overtime Entries",
+      title: "Overtime Entries & Approvals",
       icon: <MdEditDocument className="text-emerald-600" size={20} />,
       bgColor: "bg-emerald-100",
       hoverBgColor: "group-hover:bg-emerald-200",
@@ -61,16 +61,6 @@ export default function Dashboard() {
       hoverBg: "hover:bg-emerald-50",
       path: "/overtimeentry",
       adminOnly: true,
-    },
-    {
-      title: "Approve Entries",
-      icon: <MdApproval className="text-orange-600" size={20} />,
-      bgColor: "bg-orange-100",
-      hoverBgColor: "group-hover:bg-orange-200",
-      borderHover: "hover:border-orange-300",
-      hoverBg: "hover:bg-orange-50",
-      path: "/overtimeentry",
-      adminOnly: false,
     },
     {
       title: "Overtime Logs",
