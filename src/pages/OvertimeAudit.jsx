@@ -46,31 +46,12 @@ export default function OvertimeAudit() {
   const renderDetails = (details, id, action) => {
     let overtimeDetails;
 
-    if (action === "APPROVE") {
-      const { previousStatus, newStatus, action: actionText } = details || {};
-      const overtime = details?.details?.overtime || {};
-      const { name, employeeNumber, date } = overtime;
-
+    if (action === "APPROVE" || action === "REJECT") {
       overtimeDetails = {
-        previousStatus,
-        newStatus,
-        action: actionText,
-        name,
-        employeeNumber,
-        recordDate: date ? new Date(date).toLocaleString() : undefined,
-      };
-    } else if (action === "REJECT") {
-      const { previousStatus, newStatus, action: actionText } = details || {};
-      const overtime = details?.details?.overtime || {};
-      const { name, employeeNumber, date } = overtime;
-
-      overtimeDetails = {
-        previousStatus,
-        newStatus,
-        action: actionText,
-        name,
-        employeeNumber,
-        recordDate: date ? new Date(date).toLocaleString() : undefined,
+        approvedot: details?.approvedot,
+        previousStatus: details?.previousStatus,
+        newStatus: details?.newStatus,
+        updatedReason: details?.updatedReason,
       };
     } else if (action === "UPDATE") {
       overtimeDetails = details?.updatedFields || {};

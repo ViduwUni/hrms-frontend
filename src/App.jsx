@@ -24,6 +24,7 @@ import OTConfiguration from "./pages/OTConfiguration";
 import OvertimeExportAudit from "./pages/OvertimeExportAudit";
 import OvertimeAudit from "./pages/OvertimeAudit";
 import LogsUploader from "./components/LogsUploader";
+import SessionExpired from "./components/SessionExpired";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -40,6 +41,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/session-expired" element={<SessionExpired />} />
           <Route
             path="/settings"
             element={

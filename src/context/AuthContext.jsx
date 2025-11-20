@@ -31,9 +31,7 @@ export const AuthProvider = ({ children }) => {
       console.log("Logout error:", err);
       toast.error(`Logout error: ${err.message}`);
     } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      localStorage.removeItem("sessionExpires");
+      localStorage.clear();
       setUser(null);
       toast.success("User logged out successfully.");
     }

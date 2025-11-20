@@ -67,10 +67,17 @@ export default function Sidebar() {
   const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
   const handleSessionExpire = () => {
-    alert("Session expired! Logging out...");
+    toast.success("Session expired! Logging out...");
     localStorage.removeItem("token");
     localStorage.removeItem("sessionExpires");
-    window.location.href = "/login";
+    navigate("/session-expired");
+  };
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
+  const handleLogout = async () => {
+    setLogoutLoading(true);
+    await logout();
+    setLogoutLoading(false);
   };
 
   useEffect(() => {
@@ -377,11 +384,24 @@ export default function Sidebar() {
         )}
 
         <button
-          onClick={logout}
-          className="flex items-center justify-center gap-3 w-full p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all duration-200 group border border-red-500/20 hover:border-red-500/30"
+          onClick={handleLogout}
+          disabled={logoutLoading}
+          className={`flex items-center justify-center gap-3 w-full p-3 rounded-xl transition-all duration-200 
+    ${
+      logoutLoading
+        ? "bg-red-500/20 text-red-300 cursor-not-allowed"
+        : "bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300"
+    }
+    border border-red-500/20 hover:border-red-500/30`}
         >
-          <LogOut size={18} />
-          <span className="font-medium">Logout</span>
+          {logoutLoading ? (
+            <span className="animate-spin border-2 border-red-400 border-t-transparent rounded-full w-4 h-4"></span>
+          ) : (
+            <LogOut size={18} />
+          )}
+          <span className="font-medium">
+            {logoutLoading ? "Logging out..." : "Logout"}
+          </span>
         </button>
       </div>
     </div>
