@@ -60,6 +60,7 @@ export default function Login() {
       toast.success("Logged in successfully.");
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("sessionExpires", res.data.sessionExpires);
+      localStorage.setItem("username", res.data.username);
       setUser(res.data);
       navigate("/dashboard");
     } catch (err) {

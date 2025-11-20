@@ -10,7 +10,7 @@ import {
 } from "../api/overtimeAPI";
 import { getTripleOTs } from "../api/tripleOTAPI";
 import { getProfile } from "../api/authAPI";
-import { FaPlus, FaSave, FaCircle, FaRegCircle } from "react-icons/fa";
+import { FaPlus, FaSave } from "react-icons/fa";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import InfoLoader from "../components/InfoLoader";
@@ -192,6 +192,13 @@ export default function OvertimeEntry() {
         doubleot: 0,
         tripleot: 0,
         night: "No",
+        errors: {
+          employeeNumber: false,
+          shift: false,
+          intime: false,
+          outtime: false,
+          reason: false,
+        },
       },
     ]);
   };
@@ -199,6 +206,10 @@ export default function OvertimeEntry() {
   const handleRowChange = (index, field, value) => {
     const updated = [...rows];
     updated[index][field] = value;
+
+    if (updated[index].errors) {
+      updated[index].errors[field] = false;
+    }
 
     if (field === "employeeNumber") {
       const emp = employees.find((e) => e.employeeNumber === value);
@@ -281,6 +292,30 @@ export default function OvertimeEntry() {
     };
   };
 
+  const validateRows = () => {
+    let valid = true;
+
+    const updated = rows.map((row) => {
+      const errors = {
+        employeeNumber: !row.employeeNumber,
+        shift: !row.shift,
+        intime: !row.intime,
+        outtime: !row.outtime,
+        reason: !row.reason?.trim(),
+      };
+
+      if (Object.values(errors).some(Boolean)) valid = false;
+
+      return { ...row, errors };
+    });
+
+    setRows(updated);
+
+    if (!valid) toast.error("Please fix highlighted fields");
+
+    return valid;
+  };
+
   const handleSave = async () => {
     if (loading) return;
     if (!selectedDay) {
@@ -292,6 +327,8 @@ export default function OvertimeEntry() {
       toast.error("No entries to save");
       return;
     }
+
+    if (!validateRows()) return;
 
     const confirm = await Swal.fire({
       title: "Confirm Save",
@@ -420,20 +457,13 @@ export default function OvertimeEntry() {
 
       if (newStatus === "Approved") {
         await approveOvertime(id, {
-          performedBy: profile?.username,
           approvedot: editableRows[approvingRowIndex]?.approvedot,
           reason:
             editableRows[approvingRowIndex]?.reason || overtimeEntry.reason,
-          entryId: id,
-          action: "Status changed to Approved",
-          details: { overtime: overtimeEntry },
         });
       } else if (newStatus === "Rejected") {
         await rejectOvertime(id, {
-          approvedBy: profile?.username,
-          entryId: id,
-          action: "Status changed to Rejected",
-          details: { overtime: overtimeEntry },
+          reason: editableRows[approvingRowIndex]?.reason,
         });
       } else {
         // Other updates
@@ -450,6 +480,10 @@ export default function OvertimeEntry() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const removeRow = (index) => {
+    setRows((prev) => prev.filter((_, i) => i !== index));
   };
 
   const isDisabled =
@@ -605,6 +639,7 @@ export default function OvertimeEntry() {
                       <Th>Double OT</Th>
                       <Th>Triple OT</Th>
                       <Th>Night</Th>
+                      <Th>Action</Th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -620,7 +655,13 @@ export default function OvertimeEntry() {
                                 e.target.value
                               )
                             }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                            className={`w-full border rounded-lg px-3 py-2 text-sm 
+    ${
+      row.errors?.employeeNumber
+        ? "border-red-500 bg-red-50"
+        : "border-gray-300"
+    }
+  `}
                           >
                             <option value="">Select Employee</option>
                             {employees.map((emp) => (
@@ -637,7 +678,9 @@ export default function OvertimeEntry() {
                             onChange={(e) =>
                               handleRowChange(i, "shift", e.target.value)
                             }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                            className={`w-full border rounded-lg px-3 py-2 text-sm 
+    ${row.errors?.shift ? "border-red-500 bg-red-50" : "border-gray-300"}
+  `}
                           >
                             <option value="">Select Shift</option>
                             <option value="6:30am">6:30am</option>
@@ -651,7 +694,9 @@ export default function OvertimeEntry() {
                             onChange={(e) =>
                               handleRowChange(i, "intime", e.target.value)
                             }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                            className={`w-full border rounded-lg px-3 py-2 text-sm 
+    ${row.errors?.intime ? "border-red-500 bg-red-50" : "border-gray-300"}
+  `}
                           />
                         </Td>
                         <Td>
@@ -661,22 +706,37 @@ export default function OvertimeEntry() {
                             onChange={(e) =>
                               handleRowChange(i, "outtime", e.target.value)
                             }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                            className={`w-full border rounded-lg px-3 py-2 text-sm 
+    ${row.errors?.outtime ? "border-red-500 bg-red-50" : "border-gray-300"}
+  `}
                           />
                         </Td>
                         <Td>
-                          <OvertimeReasonDropdown
+                          <select
                             value={row.reason}
                             onChange={(e) =>
                               handleRowChange(i, "reason", e.target.value)
                             }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                          />
+                            className={`w-full border rounded-lg px-3 py-2 text-sm 
+    ${row.errors?.reason ? "border-red-500 bg-red-50" : "border-gray-300"}
+  `}
+                          >
+                            <option value="">Select Overtime Reason</option>
+                            <option value="-">-</option>
+                          </select>
                         </Td>
                         <Td className="text-center">{row.normalot}</Td>
                         <Td className="text-center">{row.doubleot}</Td>
                         <Td className="text-center">{row.tripleot}</Td>
                         <Td className="text-center">{row.night}</Td>
+                        <Td className="text-center">
+                          <button
+                            onClick={() => removeRow(i)}
+                            className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                          >
+                            Remove
+                          </button>
+                        </Td>
                       </tr>
                     ))}
                   </tbody>
