@@ -31,3 +31,7 @@ export const overtimeExport = (startDate, endDate) =>
   API.get(`/overtime/export?startDate=${startDate}&endDate=${endDate}`, {
     responseType: "blob",
   });
+
+export const overtimePreview = (startDate, endDate) =>
+  API.get(`/overtime/preview?startDate=${startDate}&endDate=${endDate}`);
+

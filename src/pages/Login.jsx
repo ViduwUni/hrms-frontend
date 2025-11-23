@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { FaSignInAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
+import Lottie from "lottie-react";
+import connectedAnimationData from "../assets/Connected.json";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -148,7 +150,7 @@ export default function Login() {
       </motion.div>
 
       {/* Backend Status */}
-      <motion.div className="flex justify-center items-center mt-10">
+      <motion.div className="flex justify-center items-center border px-5 rounded-3xl mt-10 bg-gray-100">
         {checking ? (
           <>
             <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -156,7 +158,8 @@ export default function Login() {
           </>
         ) : backendOnline ? (
           <>
-            <span className="h-3 w-3 bg-green-500 rounded-full mr-2"></span>
+            {/* <span className="h-3 w-3 bg-green-500 rounded-full mr-2"></span> */}
+            <Lottie className="h-16 w-auto" animationData={connectedAnimationData} loop={true} />
             <span className="text-sm text-green-600">Connected to backend</span>
           </>
         ) : (

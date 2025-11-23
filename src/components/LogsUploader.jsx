@@ -2,6 +2,8 @@ import { useState } from "react";
 import { FaDownload } from "react-icons/fa";
 import InfoLoader from "./InfoLoader";
 import toast from "react-hot-toast";
+import Lottie from "lottie-react";
+import uploadingAnimationData from "../assets/Uploading.json";
 
 export default function LogsUploader() {
   const [logs, setLogs] = useState([]);
@@ -87,7 +89,14 @@ export default function LogsUploader() {
         </div>
       </div>
 
-      {loading && <InfoLoader />}
+      {/* {loading && <InfoLoader />} */}
+      {loading && (
+        <Lottie
+          className="h-36 w-auto"
+          animationData={uploadingAnimationData}
+          loop={true}
+        />
+      )}
 
       {/* Logs Table */}
       {logs.length > 0 && !loading && (
