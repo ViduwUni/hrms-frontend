@@ -353,6 +353,13 @@ export default function Sidebar() {
         </div>
       </button>
 
+      {/* Notifications */}
+      {profile?.canApprove && (
+        <div className="fixed top-6 right-6 z-[1000]">
+          <Notifications />
+        </div>
+      )}
+
       {/* Sidebar */}
       <div
         className={`${
@@ -361,12 +368,6 @@ export default function Sidebar() {
       >
         {/* Header */}
         <div className="p-6 border-b border-gray-700 relative">
-          {profile?.canApprove && (
-            <div className="absolute top-6 right-6">
-              <Notifications />
-            </div>
-          )}
-
           <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
             OTFlow
           </h1>

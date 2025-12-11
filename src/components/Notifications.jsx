@@ -82,12 +82,13 @@ export default function Notifications() {
     <div className="relative z-50" ref={ref}>
       {/* Bell Button */}
       <motion.button
-        whileTap={{ scale: 0.85 }}
-        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ rotate: [0, -15, 15, -10, 10, 0] }} // wiggle effect
+        transition={{ duration: 0.6, repeat: 0 }}
         onClick={() => setOpen(!open)}
         className="relative"
       >
-        <FaBell className="text-2xl text-gray-300 hover:text-white transition" />
+        <FaBell className="text-2xl text-gray-600 transition-colors hover:text-gray-400" />
 
         {/* Notification Badge */}
         <AnimatePresence>
@@ -110,11 +111,11 @@ export default function Notifications() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, x: -10, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-full ml-3 mt-2 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 z-50"
+            className="absolute right-0 mt-2 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 z-50"
           >
             <h3 className="font-semibold text-sm mb-3 text-white">
               Pending Overtime Approvals
@@ -147,7 +148,6 @@ export default function Notifications() {
                     <p className="font-medium">
                       {p.name} ({p.employeeNumber})
                     </p>
-                    <p className="text-blue-400">{p.reason}</p>
                     <p className="text-gray-500">
                       {new Date(p.date).toDateString()}
                     </p>
