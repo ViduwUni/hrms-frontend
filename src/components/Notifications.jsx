@@ -82,11 +82,20 @@ export default function Notifications() {
     <div className="relative z-50" ref={ref}>
       {/* Bell Button */}
       <motion.button
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ rotate: [0, -15, 15, -10, 10, 0] }} // wiggle effect
-        transition={{ duration: 0.6, repeat: 0 }}
         onClick={() => setOpen(!open)}
         className="relative"
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ rotate: [0, -15, 15, -10, 10, 0] }}
+        animate={
+          pending.length > 0
+            ? { rotate: [0, -10, 10, -10, 10, 0] }
+            : { rotate: 0 }
+        }
+        transition={
+          pending.length > 0
+            ? { repeat: Infinity, repeatType: "loop", duration: 0.6 }
+            : { duration: 0 }
+        }
       >
         <FaBell className="text-2xl text-gray-600 transition-colors hover:text-gray-400" />
 
