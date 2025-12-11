@@ -17,6 +17,8 @@ import InfoLoader from "../components/InfoLoader";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import OvertimeReasonDropdown from "../components/OvertimeReasonDropdown";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 export default function OvertimeEntry() {
   const [employees, setEmployees] = useState([]);
@@ -32,6 +34,7 @@ export default function OvertimeEntry() {
   const [tripleOTDates, setTripleOTDates] = useState([]);
   const [profile, setProfile] = useState(null);
   const [approvingRowIndex, setApprovingRowIndex] = useState(null);
+  const { collapsed } = useContext(UIContext);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -192,6 +195,7 @@ export default function OvertimeEntry() {
         doubleot: 0,
         tripleot: 0,
         night: "No",
+        auto: true,
         errors: {
           employeeNumber: false,
           shift: false,
@@ -214,11 +218,18 @@ export default function OvertimeEntry() {
     if (field === "employeeNumber") {
       const emp = employees.find((e) => e.employeeNumber === value);
       updated[index].name = emp ? emp.name : "";
-      if (!emp) toast.error("Invalid employee selected");
     }
 
-    // Recalculate OT whenever time or shift changes
-    if (["shift", "intime", "outtime"].includes(field)) {
+    // Always recalc night OT
+    if (["intime", "outtime"].includes(field)) {
+      updated[index].night = calculateNight(
+        updated[index].intime,
+        updated[index].outtime
+      );
+    }
+
+    // Only auto-calc OT if enabled
+    if (updated[index].auto && ["shift", "intime", "outtime"].includes(field)) {
       updated[index] = calculateOT(updated[index]);
     }
 
@@ -486,13 +497,28 @@ export default function OvertimeEntry() {
     setRows((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const calculateNight = (intime, outtime) => {
+    const start = parseTime(intime);
+    let end = parseTime(outtime);
+
+    if (!start || !end) return "No";
+
+    if (end < start) end += 24;
+
+    return end > 21 ? "Yes" : "No";
+  };
+
   const isDisabled =
     selectedRowIndex === null ||
     !profile?.isAdmin ||
     editableRows[selectedRowIndex]?.status === "Approved";
 
   return (
-    <motion.div className="ml-64 p-8 relative bg-gray-50 min-h-screen">
+    <motion.div
+      className={`transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } p-8 relative bg-gray-50 min-h-screen`}
+    >
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           Overtime Management
@@ -639,6 +665,7 @@ export default function OvertimeEntry() {
                       <Th>Double OT</Th>
                       <Th>Triple OT</Th>
                       <Th>Night</Th>
+                      <Th>OT Calculation</Th>
                       <Th>Action</Th>
                     </tr>
                   </thead>
@@ -725,10 +752,61 @@ export default function OvertimeEntry() {
                             <option value="-">-</option>
                           </select>
                         </Td>
-                        <Td className="text-center">{row.normalot}</Td>
-                        <Td className="text-center">{row.doubleot}</Td>
-                        <Td className="text-center">{row.tripleot}</Td>
+                        <Td className="text-center">
+                          {row.auto ? (
+                            row.normalot
+                          ) : (
+                            <input
+                              type="number"
+                              value={row.normalot}
+                              onChange={(e) =>
+                                handleRowChange(i, "normalot", e.target.value)
+                              }
+                              className="w-20 border rounded px-2 py-1 text-sm"
+                            />
+                          )}
+                        </Td>
+                        <Td className="text-center">
+                          {row.auto ? (
+                            row.doubleot
+                          ) : (
+                            <input
+                              type="number"
+                              value={row.doubleot}
+                              onChange={(e) =>
+                                handleRowChange(i, "doubleot", e.target.value)
+                              }
+                              className="w-20 border rounded px-2 py-1 text-sm"
+                            />
+                          )}
+                        </Td>
+                        <Td className="text-center">
+                          {row.auto ? (
+                            row.tripleot
+                          ) : (
+                            <input
+                              type="number"
+                              value={row.tripleot}
+                              onChange={(e) =>
+                                handleRowChange(i, "tripleot", e.target.value)
+                              }
+                              className="w-20 border rounded px-2 py-1 text-sm"
+                            />
+                          )}
+                        </Td>
                         <Td className="text-center">{row.night}</Td>
+                        <Td className="text-center">
+                          <label className="flex items-center justify-center gap-1 text-xs">
+                            <input
+                              type="checkbox"
+                              checked={row.auto}
+                              onChange={(e) =>
+                                handleRowChange(i, "auto", e.target.checked)
+                              }
+                            />
+                            Auto
+                          </label>
+                        </Td>
                         <Td className="text-center">
                           <button
                             onClick={() => removeRow(i)}

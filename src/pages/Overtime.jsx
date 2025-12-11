@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { getOvertimes } from "../api/overtimeAPI";
 import toast from "react-hot-toast";
 import InfoLoader from "../components/InfoLoader";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 export default function Overtime() {
   const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7) // YYYY-MM format
+    new Date().toISOString().slice(0, 7)
   );
   const [overtimeData, setOvertimeData] = useState({});
   const [loading, setLoading] = useState(false);
+  const { collapsed } = useContext(UIContext);
 
   // Fetch overtime data whenever month changes
   useEffect(() => {
@@ -72,7 +75,11 @@ export default function Overtime() {
   );
 
   return (
-    <div className="ml-64 p-8 min-h-screen bg-gray-50">
+    <div
+      className={`transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } p-8 min-h-screen bg-gray-50`}
+    >
       <h1 className="text-3xl font-bold text-gray-800 mb-4">
         Monthly Overtime Monitoring
       </h1>

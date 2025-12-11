@@ -12,6 +12,8 @@ import InfoLoader from "../components/InfoLoader";
 import { getProfile } from "../api/authAPI";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 export default function Employees() {
   const [employees, setEmployees] = useState([]);
@@ -24,6 +26,7 @@ export default function Employees() {
   });
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState(null);
+  const { collapsed } = useContext(UIContext);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -122,7 +125,11 @@ export default function Employees() {
   };
 
   return (
-    <div className="ml-64 p-8 relative bg-gray-50 min-h-screen">
+    <div
+      className={`transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } p-8 relative bg-gray-50 min-h-screen`}
+    >
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">

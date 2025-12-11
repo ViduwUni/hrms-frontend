@@ -12,6 +12,8 @@ import InfoLoader from "../components/InfoLoader";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import { getProfile } from "../api/authAPI";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -31,6 +33,7 @@ export default function Users() {
   });
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState(null);
+  const { collapsed } = useContext(UIContext);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -126,7 +129,11 @@ export default function Users() {
   };
 
   return (
-    <div className="ml-64 p-8 relative bg-gray-50 min-h-screen">
+    <div
+      className={`transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } p-8 relative bg-gray-50 min-h-screen`}
+    >
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -143,7 +150,7 @@ export default function Users() {
           <h2 className="text-lg font-semibold text-gray-800">Add New User</h2>
         </div>
         <form onSubmit={handleAddUser} className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Username *
@@ -189,7 +196,7 @@ export default function Users() {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
               />
             </div>
-            <div className="flex flex-col items-center justify-center mt-6 border border-gray-400 rounded-md">
+            <div className="flex flex-col items-center justify-center mt-6 border border-gray-400 rounded-md p-2">
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input

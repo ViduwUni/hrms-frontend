@@ -12,6 +12,7 @@ import { AuthProvider, AuthContext } from "./context/AuthContext";
 import { useContext } from "react";
 import { Toaster } from "react-hot-toast";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { UIProvider } from "./context/UIContext";
 
 import Settings from "./pages/Settings";
 import Dashboard from "./pages/Dashboard";
@@ -35,104 +36,106 @@ function ProtectedRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-right" reverseOrder={false} />
-      <Router>
-        <Sidebar />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/session-expired" element={<SessionExpired />} />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute>
-                <Users />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/employees"
-            element={
-              <ProtectedRoute>
-                <Employees />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overtimeentry"
-            element={
-              <ProtectedRoute>
-                <OvertimeEntry />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overtimes"
-            element={
-              <ProtectedRoute>
-                <Overtime />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overtimeexport"
-            element={
-              <ProtectedRoute>
-                <OvertimeExport />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/logs"
-            element={
-              <ProtectedRoute>
-                <LogsUploader />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overtimeconfiguration"
-            element={
-              <ProtectedRoute>
-                <OTConfiguration />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overtime-export-audit"
-            element={
-              <ProtectedRoute>
-                <OvertimeExportAudit />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/overtime-audit"
-            element={
-              <ProtectedRoute>
-                <OvertimeAudit />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/dashboard" />} />
-        </Routes>
-      </Router>
+      <UIProvider>
+        <Toaster position="top-right" reverseOrder={false} />
+        <Router>
+          <Sidebar />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/session-expired" element={<SessionExpired />} />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employees"
+              element={
+                <ProtectedRoute>
+                  <Employees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overtimeentry"
+              element={
+                <ProtectedRoute>
+                  <OvertimeEntry />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overtimes"
+              element={
+                <ProtectedRoute>
+                  <Overtime />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overtimeexport"
+              element={
+                <ProtectedRoute>
+                  <OvertimeExport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/logs"
+              element={
+                <ProtectedRoute>
+                  <LogsUploader />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overtimeconfiguration"
+              element={
+                <ProtectedRoute>
+                  <OTConfiguration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overtime-export-audit"
+              element={
+                <ProtectedRoute>
+                  <OvertimeExportAudit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overtime-audit"
+              element={
+                <ProtectedRoute>
+                  <OvertimeAudit />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/dashboard" />} />
+          </Routes>
+        </Router>
+      </UIProvider>
     </AuthProvider>
   );
 }

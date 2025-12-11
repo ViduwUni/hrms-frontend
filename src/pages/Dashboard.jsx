@@ -17,6 +17,8 @@ import {
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 import { getEmployees } from "../api/employeeAPI";
 import { getOvertimes } from "../api/overtimeAPI";
@@ -27,6 +29,7 @@ export default function Dashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const { collapsed } = useContext(UIContext);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -222,7 +225,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-8 ml-64 min-h-screen bg-gray-50">
+    <div
+      className={`p-8 transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } min-h-screen bg-gray-50`}
+    >
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">

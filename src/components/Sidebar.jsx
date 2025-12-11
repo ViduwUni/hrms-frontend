@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Notifications from "./Notifications";
+import { UIContext } from "../context/UIContext";
 
 function SessionTimer({ onExpire }) {
   const [timeLeft, setTimeLeft] = useState(() => {
@@ -73,6 +74,21 @@ export default function Sidebar() {
     navigate("/session-expired");
   };
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const { collapsed, setCollapsed } = useContext(UIContext);
+
+  const allowedCollapseRoutes = [
+    "/overtimeentry",
+    "/overtimes",
+    "/overtimeexport",
+    "/overtimeconfiguration",
+  ];
+  const collapseAllowed = allowedCollapseRoutes.includes(location.pathname);
+
+  useEffect(() => {
+    if (!collapseAllowed && collapsed) {
+      setCollapsed(false);
+    }
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     setLogoutLoading(true);
@@ -314,96 +330,125 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-60 h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white fixed top-0 left-0 flex flex-col shadow-xl border-r border-gray-700">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-700 relative">
-        {profile?.canApprove && (
-          <div className="absolute top-6 right-6">
-            <Notifications />
-          </div>
-        )}
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
-          OTFlow
-        </h1>
-        <p className="text-sm text-gray-400 mt-1">Human Resource Management</p>
-        {/* Development indicator */}
-        <div className="mt-2 flex items-center gap-2">
-          <div
-            className={`w-2 h-2 rounded-full ${
-              isAdmin ? "bg-green-500" : "bg-red-500"
-            }`}
-          />
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-500">
-              {isAdmin ? "Admin Mode" : "User Mode"}
-            </span>
-            <SessionTimer onExpire={handleSessionExpire} />
-          </div>
+    <>
+      {/* Collapse / Expand Button */}
+      <button
+        onClick={() => {
+          if (collapseAllowed) {
+            setCollapsed(!collapsed);
+          } else {
+            toast.error("Sidebar collapse is disabled on this page");
+          }
+        }}
+        // disabled={!collapseAllowed}
+        className={`fixed top-4 z-50 bg-gray-900 p-2 rounded-lg shadow-lg transition
+    ${collapsed ? "left-4" : "left-64"}
+    ${collapseAllowed ? "hover:bg-gray-700" : "opacity-50 cursor-not-allowed"}
+  `}
+      >
+        <div className="space-y-1">
+          <span className="block w-5 h-0.5 bg-white"></span>
+          <span className="block w-5 h-0.5 bg-white"></span>
+          <span className="block w-5 h-0.5 bg-white"></span>
         </div>
-      </div>
+      </button>
 
-      {/* User Info */}
-      <div className="p-4 border-b border-gray-700 bg-gray-800/50">
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center border border-white p-1`}
-          >
-            {/* <FaIdBadge className="text-white text-sm" /> */}
-            {/* <img src="https://avatar.iran.liara.run/public/boy" /> */}
-            <img src="/logo.png" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">
-              {user.name || user.username}
-            </p>
-            <p className="text-xs text-gray-400 truncate">
-              {isAdmin ? "Administrator" : "Standard User"}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-        {navItems.map(renderNavItem)}
-      </nav>
-
-      {/* Footer Actions */}
-      <div className="p-4 border-t border-gray-700 space-y-2">
-        {profile?.isAdmin && (
-          <button
-            onClick={() => navigate("/settings")}
-            className="flex items-center justify-center gap-3 w-full p-3 rounded-xl bg-gray-750 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200 group border border-gray-600 hover:border-gray-500"
-          >
-            <Settings
-              size={18}
-              className="text-gray-400 group-hover:text-white"
-            />
-            <span className="font-medium">Settings</span>
-          </button>
-        )}
-
-        <button
-          onClick={handleLogout}
-          disabled={logoutLoading}
-          className={`flex items-center justify-center gap-3 w-full p-3 rounded-xl transition-all duration-200 
-    ${
-      logoutLoading
-        ? "bg-red-500/20 text-red-300 cursor-not-allowed"
-        : "bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300"
-    }
-    border border-red-500/20 hover:border-red-500/30`}
-        >
-          {logoutLoading ? (
-            <span className="animate-spin border-2 border-red-400 border-t-transparent rounded-full w-4 h-4"></span>
-          ) : (
-            <LogOut size={18} />
+      {/* Sidebar */}
+      <div
+        className={`${
+          collapsed ? "w-0" : "w-60"
+        } h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white fixed top-0 left-0 flex flex-col shadow-xl border-r border-gray-700 transition-all duration-300 overflow-hidden`}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-700 relative">
+          {profile?.canApprove && (
+            <div className="absolute top-6 right-6">
+              <Notifications />
+            </div>
           )}
-          <span className="font-medium">
-            {logoutLoading ? "Logging out..." : "Logout"}
-          </span>
-        </button>
+
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+            OTFlow
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Human Resource Management
+          </p>
+
+          {/* Mode & Session */}
+          <div className="mt-2 flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                isAdmin ? "bg-green-500" : "bg-red-500"
+              }`}
+            />
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-500">
+                {isAdmin ? "Admin Mode" : "User Mode"}
+              </span>
+              <SessionTimer onExpire={handleSessionExpire} />
+            </div>
+          </div>
+        </div>
+
+        {/* User Info */}
+        <div className="p-4 border-b border-gray-700 bg-gray-800/50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center border border-white p-1">
+              <img src="/logo.png" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white truncate">
+                {user.name || user.username}
+              </p>
+              <p className="text-xs text-gray-400 truncate">
+                {isAdmin ? "Administrator" : "Standard User"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+          {navItems.map(renderNavItem)}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-700 space-y-2">
+          {profile?.isAdmin && (
+            <button
+              onClick={() => navigate("/settings")}
+              className="flex items-center justify-center gap-3 w-full p-3 rounded-xl bg-gray-750 hover:bg-gray-700 text-gray-300 hover:text-white transition border border-gray-600 hover:border-gray-500"
+            >
+              <Settings
+                size={18}
+                className="text-gray-400 group-hover:text-white"
+              />
+              <span className="font-medium">Settings</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleLogout}
+            disabled={logoutLoading}
+            className={`flex items-center justify-center gap-3 w-full p-3 rounded-xl transition 
+            ${
+              logoutLoading
+                ? "bg-red-500/20 text-red-300 cursor-not-allowed"
+                : "bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300"
+            }
+            border border-red-500/20 hover:border-red-500/30`}
+          >
+            {logoutLoading ? (
+              <span className="animate-spin border-2 border-red-400 border-t-transparent rounded-full w-4 h-4"></span>
+            ) : (
+              <LogOut size={18} />
+            )}
+            <span className="font-medium">
+              {logoutLoading ? "Logging out..." : "Logout"}
+            </span>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -4,6 +4,8 @@ import { FaFileExcel } from "react-icons/fa";
 import { overtimeExport, overtimePreview } from "../api/overtimeAPI";
 import { getProfile } from "../api/authAPI";
 import { addDownloadLog } from "../api/downloadLogAPI";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 export default function OvertimeExport() {
   const [startDate, setStartDate] = useState("");
@@ -12,6 +14,7 @@ export default function OvertimeExport() {
 
   const [preview, setPreview] = useState([]);
   const [summary, setSummary] = useState(null);
+  const { collapsed } = useContext(UIContext);
 
   useEffect(() => {
     if (startDate && endDate) loadPreview();
@@ -89,7 +92,11 @@ export default function OvertimeExport() {
   }, {});
 
   return (
-    <div className="ml-64 p-8 min-h-screen bg-gray-50">
+    <div
+      className={`transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } p-8 min-h-screen bg-gray-50`}
+    >
       {/* --- Your Original Page --- */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">

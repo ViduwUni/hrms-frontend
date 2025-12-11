@@ -18,6 +18,8 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from "framer-motion";
+import { useContext } from "react";
+import { UIContext } from "../context/UIContext";
 
 export default function OTConfiguration() {
   const [tripleOTs, setTripleOTs] = useState([]);
@@ -27,6 +29,7 @@ export default function OTConfiguration() {
     tripleOT: false,
     // Add more sections here as needed in the future
   });
+  const { collapsed } = useContext(UIContext);
 
   // Fetch existing triple OT records
   const fetchTripleOTs = async () => {
@@ -106,7 +109,11 @@ export default function OTConfiguration() {
   };
 
   return (
-    <motion.div className="ml-64 p-8 relative bg-gray-50 min-h-screen">
+    <motion.div
+      className={`transition-all duration-300 ${
+        collapsed ? "ml-0" : "ml-60"
+      } p-8 relative bg-gray-50 min-h-screen`}
+    >
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           Overtime Configuration
