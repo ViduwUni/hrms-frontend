@@ -233,6 +233,20 @@ export default function OvertimeEntry() {
       updated[index] = calculateOT(updated[index]);
     }
 
+    if (field === "noOT") {
+      if (value === true) {
+        updated[index].shift = "";
+        updated[index].intime = "";
+        updated[index].outtime = "";
+        updated[index].reason = "No OT";
+        updated[index].normalot = 0;
+        updated[index].doubleot = 0;
+        updated[index].tripleot = 0;
+        updated[index].night = "No";
+        updated[index].auto = false;
+      }
+    }
+
     setRows(updated);
   };
 
@@ -309,10 +323,10 @@ export default function OvertimeEntry() {
     const updated = rows.map((row) => {
       const errors = {
         employeeNumber: !row.employeeNumber,
-        shift: !row.shift,
-        intime: !row.intime,
-        outtime: !row.outtime,
-        reason: !row.reason?.trim(),
+        shift: row.noOT ? false : !row.shift,
+        intime: row.noOT ? false : !row.intime,
+        outtime: row.noOT ? false : !row.outtime,
+        reason: row.noOT ? false : !row.reason?.trim(),
       };
 
       if (Object.values(errors).some(Boolean)) valid = false;
@@ -360,7 +374,10 @@ export default function OvertimeEntry() {
         toast.error("Please select an employee for all rows");
         return;
       }
-      if (!row.shift || !row.intime || !row.outtime || !row.reason?.trim()) {
+      if (
+        !row.noOT &&
+        (!row.shift || !row.intime || !row.outtime || !row.reason?.trim())
+      ) {
         toast.error("Please fill all fields for all rows");
         return;
       }
@@ -436,6 +453,18 @@ export default function OvertimeEntry() {
             cancelButtonText: "Cancel",
             width: 600,
           });
+
+          if (row.noOT) {
+            const payload = {
+              employeeNumber: row.employeeNumber,
+              noOT: true,
+              date: selectedDay.toISOString(),
+              performedBy: profile?.name,
+            };
+
+            await addOvertime(payload);
+            continue;
+          }
 
           if (updateConfirm.isConfirmed) {
             await updateOvertime(duplicate._id, payload);
@@ -666,12 +695,20 @@ export default function OvertimeEntry() {
                       <Th>Triple OT</Th>
                       <Th>Night</Th>
                       <Th>OT Calculation</Th>
+                      <Th>No OT</Th>
                       <Th>Action</Th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {rows.map((row, i) => (
-                      <tr key={i} className="hover:bg-blue-50/50">
+                      <tr
+                        key={i}
+                        className={`hover:bg-blue-50/50 ${
+                          row.noOT
+                            ? "bg-gray-200 opacity-70 pointer-events-none"
+                            : ""
+                        }`}
+                      >
                         <Td>
                           <select
                             value={row.employeeNumber}
@@ -806,6 +843,17 @@ export default function OvertimeEntry() {
                             />
                             Auto
                           </label>
+                        </Td>
+                        <Td className="text-center">
+                          <input
+                            type="checkbox"
+                            checked={row.noOT || false}
+                            onChange={(e) =>
+                              handleRowChange(i, "noOT", e.target.checked)
+                            }
+                            className="w-5 h-5 accent-red-600"
+                            style={{ pointerEvents: "auto" }}
+                          />
                         </Td>
                         <Td className="text-center">
                           <button
