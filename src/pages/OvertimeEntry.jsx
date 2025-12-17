@@ -1028,8 +1028,8 @@ export default function OvertimeEntry() {
             <InfoLoader text={"Loading entries."} />
           ) : (
             <div className="p-6 overflow-x-auto">
-              <table className="w-full border-separate border-spacing-y-2">
-                <thead>
+              <table className="w-full max-h-[420px] overflow-y-auto border-separate border-spacing-y-2">
+                <thead className="sticky top-0 bg-gray-500 z-20">
                   <tr className="bg-gray-100 text-gray-700 text-sm">
                     <Th className="rounded-l-lg">Select</Th>
                     <Th>Employee</Th>
