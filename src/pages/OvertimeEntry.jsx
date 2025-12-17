@@ -259,28 +259,33 @@ export default function OvertimeEntry() {
   const calculateOT = (row) => {
     const intime = parseTime(row.intime);
     let outtime = parseTime(row.outtime);
-    if (!intime || !outtime || !row.shift || !selectedDay) return row;
+
+    const otDate = row.date ? new Date(row.date) : selectedDay;
+    if (!intime || !outtime || !row.shift || !otDate) return row;
+
+    const dayType = getDayType(otDate);
+
+    let crossesMidnight = false;
 
     // Handle overnight shifts
     if (outtime < intime) {
-      outtime += 24;
+      outtime += 24; // add 24 hours to outtime
+      crossesMidnight = true;
     }
 
-    const dayType = getDayType(selectedDay);
-
+    // Check if the day is a triple OT date
     const isTripleOT = tripleOTDates.some((d) => {
       const tripleDate = new Date(d);
-      return tripleDate.toDateString() === selectedDay.toDateString();
+      return tripleDate.toDateString() === otDate.toDateString();
     });
 
     let normal = 0,
       double = 0,
       triple = 0;
 
-    // OT start config for weekdays
     const shiftOTStart = {
-      "6:30am": 15.5,
-      "8:30am": 17.5,
+      "6:30am": 15.5, // 3:30 PM
+      "8:30am": 17.5, // 5:30 PM
     };
 
     const saturdayShiftHours = {
@@ -288,20 +293,36 @@ export default function OvertimeEntry() {
       "8:30am": 5,
     };
 
+    // Helper to get OT for hours after midnight
+    const hoursAfterMidnight = crossesMidnight ? outtime - 24 : 0;
+
     // NORMAL OT calculation
     if (dayType === "weekday") {
       const otStart = shiftOTStart[row.shift] ?? 17.5;
       normal = floorToQuarter(Math.max(0, outtime - otStart));
+
+      // If it crosses midnight, include hours after midnight as normal OT
+      if (crossesMidnight) {
+        normal += floorToQuarter(hoursAfterMidnight);
+      }
     }
 
     if (dayType === "saturday") {
       const shiftDuration = saturdayShiftHours[row.shift] ?? 5;
       const shiftEnd = intime + shiftDuration;
       normal = floorToQuarter(Math.max(0, outtime - shiftEnd));
+
+      if (crossesMidnight) {
+        normal += floorToQuarter(hoursAfterMidnight);
+      }
     }
 
     if (dayType === "sunday") {
       double = floorToQuarter(Math.max(0, outtime - intime));
+
+      if (crossesMidnight) {
+        double += floorToQuarter(hoursAfterMidnight);
+      }
     }
 
     // TRIPLE OT override
@@ -311,7 +332,7 @@ export default function OvertimeEntry() {
       double = 0;
     }
 
-    // Night OT
+    // Night OT: any hours after 9 PM
     const night = outtime > 21 ? "Yes" : "No";
 
     return {
