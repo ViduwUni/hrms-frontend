@@ -128,9 +128,13 @@ export default function OvertimeEntry() {
       value = parseFloat(value) || 0;
     }
 
+    if (field === "auto" && value === true) {
+      updated[index] = calculateOT(updated[index]);
+    }
+
     updated[index][field] = value;
 
-    if (["shift", "intime", "outtime"].includes(field)) {
+    if (["shift", "intime", "outtime"].includes(field) && updated[index].auto) {
       updated[index] = calculateOT(updated[index]);
     }
 
@@ -141,6 +145,8 @@ export default function OvertimeEntry() {
     if (editingRowIndex === null) return;
 
     const row = editableRows[editingRowIndex];
+
+    if (row.status === "Approved") return;
 
     try {
       setLoading(true);
@@ -279,7 +285,7 @@ export default function OvertimeEntry() {
 
     const saturdayShiftHours = {
       "6:30am": 5,
-      "8:30am": 4,
+      "8:30am": 5,
     };
 
     // NORMAL OT calculation
@@ -954,7 +960,20 @@ export default function OvertimeEntry() {
               ) : (
                 <button
                   disabled={isDisabled}
-                  onClick={() => setEditingRowIndex(selectedRowIndex)}
+                  onClick={() => {
+                    const i = selectedRowIndex;
+                    if (i === null) return;
+
+                    setEditableRows((prev) => {
+                      const updated = [...prev];
+                      if (updated[i]?.auto) {
+                        updated[i] = calculateOT(updated[i]);
+                      }
+                      return updated;
+                    });
+
+                    setEditingRowIndex(i);
+                  }}
                   className={`px-4 py-2 rounded-lg font-medium ${
                     isDisabled
                       ? "bg-gray-400 text-white cursor-not-allowed"
@@ -1002,6 +1021,7 @@ export default function OvertimeEntry() {
                     <Th>Triple OT</Th>
                     <Th>Night</Th>
                     <Th>Approved OT</Th>
+                    <Th>OT Calc</Th>
                     <Th>Status</Th>
                     {profile?.canApprove && (
                       <Th className="rounded-r-lg">Actions</Th>
@@ -1141,9 +1161,62 @@ export default function OvertimeEntry() {
                         </Td>
 
                         {/* OT VALUES */}
-                        <Td className="text-center">{row.normalot}</Td>
-                        <Td className="text-center">{row.doubleot}</Td>
-                        <Td className="text-center">{row.tripleot}</Td>
+                        <Td className="text-center">
+                          {isEditing && !row.auto ? (
+                            <input
+                              type="number"
+                              value={row.normalot}
+                              onChange={(e) =>
+                                handleEditableRowChange(
+                                  i,
+                                  "normalot",
+                                  e.target.value
+                                )
+                              }
+                              className="modern-input w-20"
+                            />
+                          ) : (
+                            row.normalot
+                          )}
+                        </Td>
+
+                        <Td className="text-center">
+                          {isEditing && !row.auto ? (
+                            <input
+                              type="number"
+                              value={row.doubleot}
+                              onChange={(e) =>
+                                handleEditableRowChange(
+                                  i,
+                                  "doubleot",
+                                  e.target.value
+                                )
+                              }
+                              className="modern-input w-20"
+                            />
+                          ) : (
+                            row.doubleot
+                          )}
+                        </Td>
+
+                        <Td className="text-center">
+                          {isEditing && !row.auto ? (
+                            <input
+                              type="number"
+                              value={row.tripleot}
+                              onChange={(e) =>
+                                handleEditableRowChange(
+                                  i,
+                                  "tripleot",
+                                  e.target.value
+                                )
+                              }
+                              className="modern-input w-20"
+                            />
+                          ) : (
+                            row.tripleot
+                          )}
+                        </Td>
                         <Td className="text-center">{row.night}</Td>
 
                         {/* APPROVED OT */}
@@ -1163,6 +1236,25 @@ export default function OvertimeEntry() {
                             />
                           ) : (
                             row.approvedot || 0
+                          )}
+                        </Td>
+
+                        <Td className="text-center">
+                          {isEditing && (
+                            <label className="flex items-center justify-center gap-1 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={row.auto}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "auto",
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                              Auto
+                            </label>
                           )}
                         </Td>
 

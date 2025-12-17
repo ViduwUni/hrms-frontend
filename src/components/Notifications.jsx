@@ -135,34 +135,36 @@ export default function Notifications() {
                 No pending approval requests
               </p>
             ) : (
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: {},
-                  visible: {
-                    transition: { staggerChildren: 0.08 },
-                  },
-                }}
-              >
-                {pending.map((p) => (
-                  <motion.div
-                    key={p._id}
-                    variants={{
-                      hidden: { opacity: 0, x: -10 },
-                      visible: { opacity: 1, x: 0 },
-                    }}
-                    className="mb-3 pb-2 border-b border-gray-700 text-xs text-gray-300"
-                  >
-                    <p className="font-medium">
-                      {p.name} ({p.employeeNumber})
-                    </p>
-                    <p className="text-gray-500">
-                      {new Date(p.date).toDateString()}
-                    </p>
-                  </motion.div>
-                ))}
-              </motion.div>
+              <div className="max-h-[420px] overflow-y-auto pr-1">
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: {},
+                    visible: {
+                      transition: { staggerChildren: 0.08 },
+                    },
+                  }}
+                >
+                  {pending.map((p) => (
+                    <motion.div
+                      key={p._id}
+                      variants={{
+                        hidden: { opacity: 0, x: -10 },
+                        visible: { opacity: 1, x: 0 },
+                      }}
+                      className="mb-3 pb-2 border-b border-gray-700 text-xs text-gray-300"
+                    >
+                      <p className="font-medium">
+                        {p.name} ({p.employeeNumber})
+                      </p>
+                      <p className="text-gray-500">
+                        {new Date(p.date).toDateString()}
+                      </p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
             )}
           </motion.div>
         )}

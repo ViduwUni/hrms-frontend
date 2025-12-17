@@ -99,9 +99,18 @@ export default function Overtime() {
       {!loading && Object.keys(overtimeData).length > 0 && (
         <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800">Month Summary</h2>
-          <div className="text-gray-700 font-medium">
-            Total OT: Normal {summary.normal}h | Double {summary.double}h |
-            Triple {summary.triple}h
+          <div className="flex flex-wrap items-center gap-2 font-medium text-sm">
+            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+              Normal {summary.normal}h
+            </span>
+
+            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+              Double {summary.double}h
+            </span>
+
+            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+              Triple {summary.triple}h
+            </span>
           </div>
         </div>
       )}
@@ -163,9 +172,18 @@ export default function Overtime() {
                 <h2 className="text-lg font-semibold text-gray-800">
                   {employeeName} ({empNumber})
                 </h2>
-                <div className="text-gray-600 text-sm">
-                  Total OT: Normal {totalNormal}h | Double {totalDouble}h |
-                  Triple {totalTriple}h
+                <div className="flex flex-wrap gap-2 text-sm">
+                  <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                    Normal {totalNormal}h
+                  </span>
+
+                  <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                    Double {totalDouble}h
+                  </span>
+
+                  <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                    Triple {totalTriple}h
+                  </span>
                 </div>
               </div>
 
