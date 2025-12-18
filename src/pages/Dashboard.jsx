@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useContext } from "react";
 import { UIContext } from "../context/UIContext";
+import OTPieWithFilter from "../components/OTPieWithFilter";
 
 import { getEmployees } from "../api/employeeAPI";
 import { getOvertimes } from "../api/overtimeAPI";
@@ -286,6 +287,13 @@ export default function Dashboard() {
           ))}
         </div>
       )}
+
+      <div className="grid grid-cols-1 mb-8">
+        <motion.div className="bg-white rounded-xl shadow-sm border p-6">
+          <h2 className="text-lg font-semibold mb-4">Monthly OT Breakdown</h2>
+          <OTPieWithFilter />
+        </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Activities Card */}
