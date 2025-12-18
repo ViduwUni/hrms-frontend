@@ -697,12 +697,6 @@ export default function OvertimeEntry() {
                   {rows.length} entr{rows.length !== 1 ? "ies" : "y"} added
                 </p>
               </div>
-              <button
-                onClick={addRow}
-                className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <FaPlus className="text-sm" /> Add Row
-              </button>
             </div>
           </div>
 
@@ -899,6 +893,13 @@ export default function OvertimeEntry() {
               <EmptyState />
             )}
 
+            <button
+              onClick={addRow}
+              className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <FaPlus className="text-sm" /> Add Row
+            </button>
+
             {rows.length > 0 && (
               <div className="mt-6 flex justify-end">
                 <button
@@ -916,7 +917,7 @@ export default function OvertimeEntry() {
       )}
 
       {selectedDay && existingEntries.length > 0 && (
-        <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="mt-8 h-[700px] bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="flex justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800">
               Existing Overtime Entries for {selectedDay.toDateString()}
@@ -1027,323 +1028,325 @@ export default function OvertimeEntry() {
           {loading ? (
             <InfoLoader text={"Loading entries."} />
           ) : (
-            <div className="p-6 overflow-x-auto">
-              <table className="w-full max-h-[420px] overflow-y-auto border-separate border-spacing-y-2">
-                <thead className="sticky top-0 bg-gray-500 z-20">
-                  <tr className="bg-gray-100 text-gray-700 text-sm">
-                    <Th className="rounded-l-lg">Select</Th>
-                    <Th>Employee</Th>
-                    <Th>Shift</Th>
-                    <Th>In Time</Th>
-                    <Th>Out Time</Th>
-                    <Th>Reason</Th>
-                    <Th>Normal OT</Th>
-                    <Th>Double OT</Th>
-                    <Th>Triple OT</Th>
-                    <Th>Night</Th>
-                    <Th>Approved OT</Th>
-                    <Th>OT Calc</Th>
-                    <Th>Status</Th>
-                    {profile?.canApprove && (
-                      <Th className="rounded-r-lg">Actions</Th>
-                    )}
-                  </tr>
-                </thead>
+            <div className="p-6">
+              <div className="max-h-[700px] overflow-y-auto">
+                <table className="w-full border-separate border-spacing-y-2">
+                  <thead className="sticky top-0 bg-gray-500 z-20">
+                    <tr className="bg-gray-100 text-gray-700 text-sm">
+                      <Th className="rounded-l-lg">Select</Th>
+                      <Th>Employee</Th>
+                      <Th>Shift</Th>
+                      <Th>In Time</Th>
+                      <Th>Out Time</Th>
+                      <Th>Reason</Th>
+                      <Th>Normal OT</Th>
+                      <Th>Double OT</Th>
+                      <Th>Triple OT</Th>
+                      <Th>Night</Th>
+                      <Th>Approved OT</Th>
+                      <Th>OT Calc</Th>
+                      <Th>Status</Th>
+                      {profile?.canApprove && (
+                        <Th className="rounded-r-lg">Actions</Th>
+                      )}
+                    </tr>
+                  </thead>
 
-                <tbody>
-                  {editableRows.map((row, i) => {
-                    const isEditing = editingRowIndex === i;
-                    const isApproving = approvingRowIndex === i;
-                    const isSelected = selectedRowIndex === i;
+                  <tbody>
+                    {editableRows.map((row, i) => {
+                      const isEditing = editingRowIndex === i;
+                      const isApproving = approvingRowIndex === i;
+                      const isSelected = selectedRowIndex === i;
 
-                    return (
-                      <tr
-                        key={i}
-                        className={`transition-all duration-150 bg-white shadow-sm hover:shadow-md ${
-                          isSelected ? "ring-2 ring-blue-300" : ""
-                        }`}
-                      >
-                        {/* SELECT ROW */}
-                        <Td className="text-center">
-                          <input
-                            type="radio"
-                            name="editRow"
-                            checked={isSelected}
-                            onChange={() => {
-                              setSelectedRowIndex(i);
-                              setApprovingRowIndex(null);
-                              setEditingRowIndex(null);
-                            }}
-                            className="w-4 h-4 accent-blue-600"
-                          />
-                        </Td>
-
-                        {/* EMPLOYEE */}
-                        <Td>
-                          {isEditing ? (
+                      return (
+                        <tr
+                          key={i}
+                          className={`transition-all duration-150 bg-white shadow-sm hover:shadow-md ${
+                            isSelected ? "ring-2 ring-blue-300" : ""
+                          }`}
+                        >
+                          {/* SELECT ROW */}
+                          <Td className="text-center">
                             <input
-                              type="text"
-                              value={row.name}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input"
+                              type="radio"
+                              name="editRow"
+                              checked={isSelected}
+                              onChange={() => {
+                                setSelectedRowIndex(i);
+                                setApprovingRowIndex(null);
+                                setEditingRowIndex(null);
+                              }}
+                              className="w-4 h-4 accent-blue-600"
                             />
-                          ) : (
-                            <span className="font-medium text-gray-800">
-                              {row.name}
-                            </span>
-                          )}
-                        </Td>
+                          </Td>
 
-                        {/* SHIFT */}
-                        <Td>
-                          {isEditing ? (
-                            <select
-                              value={row.shift}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "shift",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input"
-                            >
-                              <option value="6:30am">6:30am</option>
-                              <option value="8:30am">8:30am</option>
-                            </select>
-                          ) : (
-                            row.shift
-                          )}
-                        </Td>
-
-                        {/* IN TIME */}
-                        <Td>
-                          {isEditing ? (
-                            <input
-                              type="time"
-                              value={row.intime}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "intime",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input"
-                            />
-                          ) : (
-                            row.intime
-                          )}
-                        </Td>
-
-                        {/* OUT TIME */}
-                        <Td>
-                          {isEditing ? (
-                            <input
-                              type="time"
-                              value={row.outtime}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "outtime",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input"
-                            />
-                          ) : (
-                            row.outtime
-                          )}
-                        </Td>
-
-                        {/* REASON */}
-                        <Td>
-                          {isEditing || isApproving ? (
-                            <OvertimeReasonDropdown
-                              value={row.reason}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "reason",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input"
-                            />
-                          ) : (
-                            row.reason
-                          )}
-                        </Td>
-
-                        {/* OT VALUES */}
-                        <Td className="text-center">
-                          {isEditing && !row.auto ? (
-                            <input
-                              type="number"
-                              value={row.normalot}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "normalot",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input w-20"
-                            />
-                          ) : (
-                            row.normalot
-                          )}
-                        </Td>
-
-                        <Td className="text-center">
-                          {isEditing && !row.auto ? (
-                            <input
-                              type="number"
-                              value={row.doubleot}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "doubleot",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input w-20"
-                            />
-                          ) : (
-                            row.doubleot
-                          )}
-                        </Td>
-
-                        <Td className="text-center">
-                          {isEditing && !row.auto ? (
-                            <input
-                              type="number"
-                              value={row.tripleot}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "tripleot",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input w-20"
-                            />
-                          ) : (
-                            row.tripleot
-                          )}
-                        </Td>
-                        <Td className="text-center">{row.night}</Td>
-
-                        {/* APPROVED OT */}
-                        <Td>
-                          {isEditing || isApproving ? (
-                            <input
-                              type="number"
-                              value={row.approvedot || ""}
-                              onChange={(e) =>
-                                handleEditableRowChange(
-                                  i,
-                                  "approvedot",
-                                  e.target.value
-                                )
-                              }
-                              className="modern-input border-green-500"
-                            />
-                          ) : (
-                            row.approvedot || 0
-                          )}
-                        </Td>
-
-                        <Td className="text-center">
-                          {isEditing && (
-                            <label className="flex items-center justify-center gap-1 text-xs">
+                          {/* EMPLOYEE */}
+                          <Td>
+                            {isEditing ? (
                               <input
-                                type="checkbox"
-                                checked={row.auto}
+                                type="text"
+                                value={row.name}
                                 onChange={(e) =>
                                   handleEditableRowChange(
                                     i,
-                                    "auto",
-                                    e.target.checked
+                                    "name",
+                                    e.target.value
                                   )
                                 }
+                                className="modern-input"
                               />
-                              Auto
-                            </label>
-                          )}
-                        </Td>
+                            ) : (
+                              <span className="font-medium text-gray-800">
+                                {row.name}
+                              </span>
+                            )}
+                          </Td>
 
-                        {/* STATUS */}
-                        <Td className="text-center">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              row.status === "Approved"
-                                ? "bg-green-100 text-green-700"
-                                : row.status === "Rejected"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {row.status}
-                          </span>
-                        </Td>
+                          {/* SHIFT */}
+                          <Td>
+                            {isEditing ? (
+                              <select
+                                value={row.shift}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "shift",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input"
+                              >
+                                <option value="6:30am">6:30am</option>
+                                <option value="8:30am">8:30am</option>
+                              </select>
+                            ) : (
+                              row.shift
+                            )}
+                          </Td>
 
-                        {/* ACTION BUTTONS */}
-                        {profile?.canApprove && (
+                          {/* IN TIME */}
+                          <Td>
+                            {isEditing ? (
+                              <input
+                                type="time"
+                                value={row.intime}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "intime",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input"
+                              />
+                            ) : (
+                              row.intime
+                            )}
+                          </Td>
+
+                          {/* OUT TIME */}
+                          <Td>
+                            {isEditing ? (
+                              <input
+                                type="time"
+                                value={row.outtime}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "outtime",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input"
+                              />
+                            ) : (
+                              row.outtime
+                            )}
+                          </Td>
+
+                          {/* REASON */}
+                          <Td>
+                            {isEditing || isApproving ? (
+                              <OvertimeReasonDropdown
+                                value={row.reason}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "reason",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input"
+                              />
+                            ) : (
+                              row.reason
+                            )}
+                          </Td>
+
+                          {/* OT VALUES */}
                           <Td className="text-center">
-                            <div className="flex flex-col gap-2 justify-center">
-                              {/* APPROVE BUTTON */}
-                              {row.status !== "Approved" && (
-                                <button
-                                  onClick={() => {
-                                    if (isApproving) {
-                                      handleStatusChange(row._id, "Approved");
-                                      setApprovingRowIndex(null);
-                                      setEditingRowIndex(null);
-                                    } else {
-                                      setApprovingRowIndex(i);
-                                    }
-                                  }}
-                                  className={`px-3 py-1 rounded-lg text-white text-sm ${
-                                    isApproving
-                                      ? "bg-green-700"
-                                      : "bg-green-500 hover:bg-green-600"
-                                  }`}
-                                >
-                                  {isApproving ? "Confirm" : "Approve"}
-                                </button>
-                              )}
+                            {isEditing && !row.auto ? (
+                              <input
+                                type="number"
+                                value={row.normalot}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "normalot",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input w-20"
+                              />
+                            ) : (
+                              row.normalot
+                            )}
+                          </Td>
 
-                              {/* REJECT BUTTON */}
-                              {row.status !== "Rejected" && (
-                                <button
-                                  onClick={() =>
-                                    handleStatusChange(row._id, "Rejected")
+                          <Td className="text-center">
+                            {isEditing && !row.auto ? (
+                              <input
+                                type="number"
+                                value={row.doubleot}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "doubleot",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input w-20"
+                              />
+                            ) : (
+                              row.doubleot
+                            )}
+                          </Td>
+
+                          <Td className="text-center">
+                            {isEditing && !row.auto ? (
+                              <input
+                                type="number"
+                                value={row.tripleot}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "tripleot",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input w-20"
+                              />
+                            ) : (
+                              row.tripleot
+                            )}
+                          </Td>
+                          <Td className="text-center">{row.night}</Td>
+
+                          {/* APPROVED OT */}
+                          <Td>
+                            {isEditing || isApproving ? (
+                              <input
+                                type="number"
+                                value={row.approvedot || ""}
+                                onChange={(e) =>
+                                  handleEditableRowChange(
+                                    i,
+                                    "approvedot",
+                                    e.target.value
+                                  )
+                                }
+                                className="modern-input border-green-500"
+                              />
+                            ) : (
+                              row.approvedot || 0
+                            )}
+                          </Td>
+
+                          <Td className="text-center">
+                            {isEditing && (
+                              <label className="flex items-center justify-center gap-1 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={row.auto}
+                                  onChange={(e) =>
+                                    handleEditableRowChange(
+                                      i,
+                                      "auto",
+                                      e.target.checked
+                                    )
                                   }
-                                  disabled={row.status === "Approved"}
-                                  className={`
+                                />
+                                Auto
+                              </label>
+                            )}
+                          </Td>
+
+                          {/* STATUS */}
+                          <Td className="text-center">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                row.status === "Approved"
+                                  ? "bg-green-100 text-green-700"
+                                  : row.status === "Rejected"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                              }`}
+                            >
+                              {row.status}
+                            </span>
+                          </Td>
+
+                          {/* ACTION BUTTONS */}
+                          {profile?.canApprove && (
+                            <Td className="text-center">
+                              <div className="flex flex-col gap-2 justify-center">
+                                {/* APPROVE BUTTON */}
+                                {row.status !== "Approved" && (
+                                  <button
+                                    onClick={() => {
+                                      if (isApproving) {
+                                        handleStatusChange(row._id, "Approved");
+                                        setApprovingRowIndex(null);
+                                        setEditingRowIndex(null);
+                                      } else {
+                                        setApprovingRowIndex(i);
+                                      }
+                                    }}
+                                    className={`px-3 py-1 rounded-lg text-white text-sm ${
+                                      isApproving
+                                        ? "bg-green-700"
+                                        : "bg-green-500 hover:bg-green-600"
+                                    }`}
+                                  >
+                                    {isApproving ? "Confirm" : "Approve"}
+                                  </button>
+                                )}
+
+                                {/* REJECT BUTTON */}
+                                {row.status !== "Rejected" && (
+                                  <button
+                                    onClick={() =>
+                                      handleStatusChange(row._id, "Rejected")
+                                    }
+                                    disabled={row.status === "Approved"}
+                                    className={`
     px-3 py-1 rounded-lg text-sm text-white
     bg-red-500 hover:bg-red-600
     disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400
   `}
-                                >
-                                  Reject
-                                </button>
-                              )}
-                            </div>
-                          </Td>
-                        )}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                                  >
+                                    Reject
+                                  </button>
+                                )}
+                              </div>
+                            </Td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
