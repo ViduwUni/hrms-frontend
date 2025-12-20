@@ -28,21 +28,15 @@ import { getUsers, getProfile } from "../api/usersAPI";
 export default function Dashboard() {
   const [stats, setStats] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
-  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const { collapsed } = useContext(UIContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await getProfile();
-        setProfile(res.data);
-      } catch (error) {
-        toast.error(`Error fetching profile: ${error}`);
-      }
-    };
-
-    fetchProfile();
+    getProfile()
+      .then((res) => setProfile(res.data))
+      // eslint-disable-next-line no-unused-vars
+      .catch((err) => toast.error("Failed to load profile"));
   }, []);
 
   const quickActions = [
@@ -90,6 +84,8 @@ export default function Dashboard() {
 
   const fetchStats = async () => {
     try {
+      const start = performance.now();
+
       const [empRes, otRes, userRes] = await Promise.all([
         getEmployees(),
         getOvertimes(),
@@ -99,59 +95,65 @@ export default function Dashboard() {
       const employees = empRes.data;
       const overtimes = otRes.data;
       const users = userRes.data;
-      const dashToday = new Date();
-      const todaysOT = overtimes.filter(
-        (o) => new Date(o.date).toDateString() === dashToday.toDateString()
-      );
 
-      const today = new Date();
+      const todayStr = new Date().toDateString();
+      const yesterdayStr = new Date(Date.now() - 86400000).toDateString();
 
-      // Employee Change
-      const empToday = new Date();
-      const empYesterday = new Date();
-      empYesterday.setDate(empToday.getDate() - 1);
-      const isSameDay = (date1, date2) =>
-        new Date(date1).toDateString() === new Date(date2).toDateString();
-      const employeesYesterday = employees.filter((emp) =>
-        isSameDay(emp.createdAt, empYesterday)
-      );
-      const employeeChange = employees.length - employeesYesterday.length;
-      const employeeTrend = employeeChange >= 0 ? "up" : "down";
+      let todaysOT = 0;
+      let yesterdaysOT = 0;
+      const activities = [];
 
-      // OT Change
-      const otYesterday = new Date();
-      otYesterday.setDate(today.getDate() - 1);
-      const yesterdaysOT = overtimes.filter(
-        (o) => new Date(o.date).toDateString() === otYesterday.toDateString()
-      );
-      const overtimeChange = todaysOT.length - yesterdaysOT.length;
-      const overtimeTrend = overtimeChange >= 0 ? "up" : "down";
+      // 🔥 single OT loop
+      for (let i = overtimes.length - 1; i >= 0; i--) {
+        const o = overtimes[i];
+        const dStr = new Date(o.date).toDateString();
 
-      // Users Change
-      const activeUsersToday = users.filter((user) => {
-        if (!user.lastLogin) return false;
-        const lastLoginDate = new Date(user.lastLogin);
-        return lastLoginDate.toDateString() === today.toDateString();
-      });
-      const yesterday = new Date();
-      yesterday.setDate(today.getDate() - 1);
+        if (dStr === todayStr) {
+          todaysOT++;
 
-      const activeUsersYesterday = users.filter((user) => {
-        if (!user.lastLogin) return false;
-        const lastLoginDate = new Date(user.lastLogin);
-        return lastLoginDate.toDateString() === yesterday.toDateString();
-      });
+          if (activities.length < 5) {
+            activities.push({
+              id: activities.length + 1,
+              name: o.name,
+              action: "Overtime Logged",
+              time: new Date(o.date).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              status: "success",
+            });
+          }
+        } else if (dStr === yesterdayStr) {
+          yesterdaysOT++;
+        }
 
-      const activeChange =
-        activeUsersToday.length - activeUsersYesterday.length;
-      const activeTrend = activeChange >= 0 ? "up" : "down";
+        if (activities.length === 5 && dStr < yesterdayStr) break;
+      }
 
+      // Employee change
+      const employeesYesterday = employees.filter(
+        (e) => new Date(e.createdAt).toDateString() === yesterdayStr
+      ).length;
+
+      const employeeChange = employees.length - employeesYesterday;
+
+      // Active users
+      const activeToday = users.filter(
+        (u) => u.lastLogin && new Date(u.lastLogin).toDateString() === todayStr
+      ).length;
+
+      const activeYesterday = users.filter(
+        (u) =>
+          u.lastLogin && new Date(u.lastLogin).toDateString() === yesterdayStr
+      ).length;
+
+      // Stats
       const newStats = [
         {
           title: "Total Employees",
           value: employees.length.toString(),
           change: Math.abs(employeeChange),
-          trend: employeeTrend,
+          trend: employeeChange >= 0 ? "up" : "down",
           icon: <FaUsers className="text-white" size={24} />,
           color: "bg-gradient-to-br from-blue-500 to-blue-600",
           bgColor: "bg-blue-50",
@@ -159,9 +161,9 @@ export default function Dashboard() {
         },
         {
           title: "Overtime Today",
-          value: todaysOT.length.toString(),
-          change: Math.abs(overtimeChange),
-          trend: overtimeTrend,
+          value: todaysOT.toString(),
+          change: Math.abs(todaysOT - yesterdaysOT),
+          trend: todaysOT >= yesterdaysOT ? "up" : "down",
           icon: <FaClock className="text-white" size={24} />,
           color: "bg-gradient-to-br from-yellow-500 to-yellow-600",
           bgColor: "bg-yellow-50",
@@ -169,9 +171,9 @@ export default function Dashboard() {
         },
         {
           title: "Active Users Today",
-          value: activeUsersToday.length.toString(),
-          change: Math.abs(activeChange),
-          trend: activeTrend,
+          value: activeToday.toString(),
+          change: Math.abs(activeToday - activeYesterday),
+          trend: activeToday >= activeYesterday ? "up" : "down",
           icon: <FaClipboardList className="text-white" size={24} />,
           color: "bg-gradient-to-br from-green-500 to-green-600",
           bgColor: "bg-green-50",
@@ -179,28 +181,20 @@ export default function Dashboard() {
         },
       ];
 
+      // Batch state updates
       setStats(newStats);
-
-      // Example recent activities (you can make API call for real events)
-      const activities = todaysOT.slice(-5).map((o, i) => ({
-        id: i + 1,
-        name: o.name,
-        action: `Overtime Logged`,
-        time: new Date(o.date).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        status: "success",
-      }));
-
       setRecentActivities(activities);
+
+      console.log(
+        `Dashboard processed in ${Math.round(performance.now() - start)}ms`
+      );
     } catch (err) {
-      console.error("Failed to fetch dashboard data:", err);
+      console.error("Dashboard fetch failed", err);
     }
   };
 
   useEffect(() => {
-    fetchStats();
+    requestIdleCallback(fetchStats);
   }, []);
 
   const getStatusColor = (status) => {

@@ -202,6 +202,7 @@ export default function OvertimeEntry() {
         tripleot: 0,
         night: "No",
         auto: true,
+        date: selectedDay,
         errors: {
           employeeNumber: false,
           shift: false,
@@ -235,7 +236,15 @@ export default function OvertimeEntry() {
     }
 
     // Only auto-calc OT if enabled
-    if (updated[index].auto && ["shift", "intime", "outtime"].includes(field)) {
+    if (updated[index].auto) {
+      const { shift, intime, outtime } = updated[index];
+
+      if (shift && intime && outtime) {
+        updated[index] = calculateOT(updated[index]);
+      }
+    }
+
+    if (field === "auto" && value === true) {
       updated[index] = calculateOT(updated[index]);
     }
 
@@ -301,7 +310,6 @@ export default function OvertimeEntry() {
       const otStart = shiftOTStart[row.shift] ?? 17.5;
       normal = floorToQuarter(Math.max(0, outtime - otStart));
 
-      // If it crosses midnight, include hours after midnight as normal OT
       if (crossesMidnight) {
         normal += floorToQuarter(hoursAfterMidnight);
       }
@@ -917,7 +925,8 @@ export default function OvertimeEntry() {
       )}
 
       {selectedDay && existingEntries.length > 0 && (
-        <div className="mt-8 h-[700px] bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200">
+          {/* Header */}
           <div className="flex justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-800">
               Existing Overtime Entries for {selectedDay.toDateString()}
@@ -1029,7 +1038,7 @@ export default function OvertimeEntry() {
             <InfoLoader text={"Loading entries."} />
           ) : (
             <div className="p-6">
-              <div className="max-h-[700px] overflow-y-auto">
+              <div className="overflow-x-auto">
                 <table className="w-full border-separate border-spacing-y-2">
                   <thead className="sticky top-0 bg-gray-500 z-20">
                     <tr className="bg-gray-100 text-gray-700 text-sm">
@@ -1376,8 +1385,9 @@ function parseTime(time) {
 }
 
 function floorToQuarter(hours) {
-  const quarters = Math.floor(hours * 4);
-  return quarters / 4;
+  const totalMinutes = Math.floor(hours * 60);
+  const flooredMinutes = totalMinutes - (totalMinutes % 15);
+  return flooredMinutes / 60;
 }
 
 function Th({ children }) {
