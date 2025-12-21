@@ -14,6 +14,8 @@ import Swal from "sweetalert2";
 import { getProfile } from "../api/authAPI";
 import { useContext } from "react";
 import { UIContext } from "../context/UIContext";
+import { FaCloud } from "react-icons/fa";
+import { GoDotFill } from "react-icons/go";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -258,6 +260,9 @@ export default function Users() {
               <thead className="bg-blue-50">
                 <tr>
                   <th className="p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
+                    <FaCloud />
+                  </th>
+                  <th className="p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
                     #
                   </th>
                   <th className="p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-200">
@@ -290,6 +295,16 @@ export default function Users() {
                       exit={{ opacity: 0, y: -5 }}
                       className="hover:bg-blue-50/50 transition-colors duration-150"
                     >
+                      <td className="p-4 text-sm font-medium">
+                        <GoDotFill
+                          className={`${
+                            user.isLoggedIn
+                              ? "text-green-500 animate-pulse"
+                              : "text-red-500"
+                          }`}
+                          title={user.isLoggedIn ? "Online" : "Offline"}
+                        />
+                      </td>
                       <td className="p-4 text-sm font-medium text-gray-700">
                         {i + 1}
                       </td>
