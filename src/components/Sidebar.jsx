@@ -413,6 +413,10 @@ export default function Sidebar() {
           {navItems.map(renderNavItem)}
         </nav>
 
+        <div className="flex items-center justify-center text-[10px] text-gray-500 font-mono">
+          v0.0.1
+        </div>
+
         {/* Footer */}
         <div className="p-4 border-t border-gray-700 space-y-2">
           {profile?.isAdmin && (
