@@ -25,9 +25,10 @@ export default function Overtime() {
 
       // Filter entries by selected month
       const monthEntries = res.data.filter((entry) => {
-        const entryDate = new Date(entry.createdAt);
-        const entryMonth = `${entryDate.getFullYear()}-${String(
-          entryDate.getMonth() + 1
+        if (!entry.date) return false;
+        const d = new Date(entry.date);
+        const entryMonth = `${d.getFullYear()}-${String(
+          d.getMonth() + 1
         ).padStart(2, "0")}`;
         return entryMonth === selectedMonth;
       });
@@ -208,9 +209,7 @@ export default function Overtime() {
                   <tbody className="divide-y divide-gray-100">
                     {empEntries.map((entry, idx) => (
                       <tr key={idx} className="hover:bg-gray-50/50">
-                        <Td>
-                          {new Date(entry.date).toLocaleDateString()}
-                        </Td>
+                        <Td>{new Date(entry.date).toLocaleDateString()}</Td>
                         <Td>{entry.shift || "-"}</Td>
                         <Td>{entry.intime || "-"}</Td>
                         <Td>{entry.outtime || "-"}</Td>
