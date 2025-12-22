@@ -209,7 +209,7 @@ export default function Overtime() {
                     {empEntries.map((entry, idx) => (
                       <tr key={idx} className="hover:bg-gray-50/50">
                         <Td>
-                          {new Date(entry.createdAt).toLocaleDateString()}
+                          {new Date(entry.date).toLocaleDateString()}
                         </Td>
                         <Td>{entry.shift || "-"}</Td>
                         <Td>{entry.intime || "-"}</Td>
